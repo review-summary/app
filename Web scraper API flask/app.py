@@ -1,15 +1,64 @@
 from flask import Flask, request, jsonify
-import selectorlib
+from selectorlib import Extractor
 import requests
 from dateutil import parser as dateparser
 from time import sleep
 app = Flask(__name__)
-extractor = selectorlib.Extractor.from_yaml_file('selectors.yml')
+extractor = Extractor.from_yaml_file('selectors.yml')
 root_url = 'https://www.amazon.com'
 reviews = []
 histogram = {}
+output = {}
 
-def scrape(url,flag):    
+def main(url,flag):
+    count = 0
+
+    next_url = url
+
+    while flag == 0:
+        result = scrape(next_url)
+
+        if result['reviews'] == None: 
+            print('Trouble reading')
+            output['reviews'] = reviews
+            output['error'] = 'Trouble reading'
+            return output
+
+        if count == 0:
+            for h in result['histogram']:
+                histogram[h['key']] = h['value']
+
+            output['histogram'] = histogram
+            output['average_rating'] = float(result['average_rating'].split(' out')[0])
+            output['number_of_reviews'] = int(result['number_of_reviews'].replace(",", "").split('  customer')[0])
+
+        for r in result['reviews']:
+            r["product"] = result["product_title"]
+            r['url'] = url
+            if 'verified_purchase' in r and r.get('verified'):
+                if 'Verified Purchase' in r['verified_purchase']:
+                    r['verified_purchase'] = True
+                else:
+                    r['verified_purchase'] = False
+            r['rating'] = r['rating'].split(' out of')[0]
+            date_posted = r['date'].split('on ')[-1]
+            if r['images']:
+                r['images'] = "\n".join(r['images'])
+            r['date'] = dateparser.parse(date_posted).strftime('%d %b %Y')
+            reviews.append(r)
+
+        next_url = result['next_page'] if result['next_page'] else root_url
+
+        count += 1
+        
+        result.clear
+
+        if next_url == root_url: flag = 1
+
+    output['reviews'] = reviews
+    return output
+
+def scrape(url):    
     headers = {
         'authority': 'www.amazon.com',
         'pragma': 'no-cache',
@@ -34,50 +83,19 @@ def scrape(url,flag):
         else:
             print("Page %s must have been blocked by Amazon as the status code was %d"%(url,r.status_code))
         return None
+
+    sleep(5)
+
     # Pass the HTML of the page and create 
     data = extractor.extract(r.text,base_url=url)
-    
-    for r in data['reviews']:
-        r["product"] = data["product_title"]
-        r['url'] = url
-        if 'verified_purchase' in r and r.get('verified'):
-            if 'Verified Purchase' in r['verified_purchase']:
-                r['verified_purchase'] = True
-            else:
-                r['verified_purchase'] = False
-        r['rating'] = r['rating'].split(' out of')[0]
-        date_posted = r['date'].split('on ')[-1]
-        if r['images']:
-            r['images'] = "\n".join(r['images'])
-        r['date'] = dateparser.parse(date_posted).strftime('%d %b %Y')
-        reviews.append(r)
 
-    if flag == 0:
-        for h in data['histogram']:
-            histogram[h['key']] = h['value']
-        
-        data['histogram'] = histogram
-        data['average_rating'] = float(data['average_rating'].split(' out')[0])
-        data['reviews'] = reviews
-        data['number_of_reviews'] = int(data['number_of_reviews'].replace(",", "").split('  customer')[0])
+    return data
 
-    #return data 
-    sleep(5)
-    
-    next_url = data['next_page'] if data['next_page'] else root_url
-    if next_url == root_url: return reviews
-    else: scrape(next_url,1)
-
-    return reviews
-    #if next_url != root_url:
-        #scrape(next_url)
-    
-    
 @app.route('/')
 def api():
     url = request.args.get('url',None)
     if url:
-        data = scrape(url,0)
+        data = main(url,0)
         return jsonify(data)
     return jsonify({'error':'URL to scrape is not provided'}),400
 
