@@ -11,8 +11,9 @@ Before starting, export the AWS credentials ([AWS IAM](https://console.aws.amazo
 to environment variables (hint: you can add them to `.bashrc`).
 
 ```bash
-export AWS_ACCESS_KEY_ID="anaccesskey"
-export AWS_SECRET_ACCESS_KEY="asecretkey"
+export AWS_ACCOUNT_ID="account_id"
+export AWS_ACCESS_KEY_ID="anaccess_key"
+export AWS_SECRET_ACCESS_KEY="secret_key"
 export AWS_DEFAULT_REGION="us-west-2"  # example
 ```
 
@@ -29,3 +30,5 @@ To login into the machine, run
 ```bash
 ssh -i key ubuntu@<ip address of the machine>
 ```
+
+Finally, when you want to turn it off, run `terraform destroy` and it will cleanup everything for you.
