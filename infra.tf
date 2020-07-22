@@ -6,6 +6,7 @@
 # $ export AWS_ACCESS_KEY_ID="anaccesskey"
 # $ export AWS_SECRET_ACCESS_KEY="asecretkey"
 # $ export AWS_DEFAULT_REGION="us-west-2"
+
 provider "aws" {}
 
 # Use local ssh keys 'key' and 'key.pub'
@@ -44,7 +45,7 @@ resource "aws_instance" "web" {
   instance_type = "t2.micro"
 
   tags = {
-      Name = "Hello World"
+      Name = "ws-capstone"
   }
 
   vpc_security_group_ids = [

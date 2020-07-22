@@ -5,11 +5,19 @@ REPOSITORY ?= ws-capstone
 TAG ?= 0.1
 IMAGE ?= $(ECR_URL)/$(REPOSITORY):$(TAG)
 
-.PHONY: build run push keys clean help
+.PHONY: build-docker setup-instance run push auth clean help
 .DEFAULT_GOAL := help
 
-build: ## Build docker
+build-docker: ## Build docker
 	docker build --rm -t $(IMAGE) -f Dockerfile .
+
+setup-instance: ## Setup AWS EC2 instance
+	@ $(eval IP=$(shell aws ec2 describe-instances --filter Name=tag:Name,Values=ws-capstone \
+		--query 'Reservations[].Instances[].PublicIpAddress' --output text))
+	@ ssh -i key ubuntu@$(IP) < scripts/setup_instance.sh
+	@ scp -q ecr_pass ubuntu@$(IP):/home/ubuntu/
+	@ ssh -i key ubuntu@$(IP) "cat ecr_pass | docker login --username AWS --password-stdin $(ECR_URL) \
+		&& docker run --rm $(IMAGE)"
 
 run: ## Run docker image
 	docker run --rm $(IMAGE)
@@ -20,14 +28,15 @@ push: ## Push docker image to remote repository
 	# https://docs.aws.amazon.com/AmazonECR/latest/userguide/repository-create.html
 	# https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html
 
-	@ bash scripts/ecr_pass.sh | docker login --username AWS --password-stdin $(ECR_URL)
+	@ cat ecr_pass | docker login --username AWS --password-stdin $(ECR_URL)
 	@ aws ecr create-repository --repository-name $(REPOSITORY) || true 2>/dev/null
 	docker push $(IMAGE)
 	@ docker logout
 
-keys: ## Generate SSH keypair
+auth: ## Generate SSH keypair
 	@ ssh-keygen -t rsa -f key
 	@ chmod 400 key*
+	@ aws ecr get-login-password --region ${AWS_DEFAULT_REGION} > ecr_pass
 
 clean: ## Cleanup the working files
 	@ rm -rf .terraform terraform.tfstate *.backup
