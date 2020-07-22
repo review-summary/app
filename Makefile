@@ -8,10 +8,13 @@ IMAGE ?= $(ECR_URL)/$(REPOSITORY):$(TAG)
 .PHONY: build-docker setup-instance run push auth clean help
 .DEFAULT_GOAL := help
 
+build: auth build-docker push setup-instance
+
 build-docker: ## Build docker
 	docker build --rm -t $(IMAGE) -f Dockerfile .
 
 setup-instance: ## Setup AWS EC2 instance
+	@ terraform apply
 	@ $(eval IP=$(shell aws ec2 describe-instances --filter Name=tag:Name,Values=ws-capstone \
 		--query 'Reservations[].Instances[].PublicIpAddress' --output text))
 	@ ssh -i key ubuntu@$(IP) < scripts/setup_instance.sh
@@ -34,13 +37,13 @@ push: ## Push docker image to remote repository
 	@ docker logout
 
 auth: ## Generate SSH keypair
+	@ rm -rf key* ecr_pass
 	@ ssh-keygen -t rsa -f key
 	@ chmod 400 key*
 	@ aws ecr get-login-password --region ${AWS_DEFAULT_REGION} > ecr_pass
 
 clean: ## Cleanup the working files
 	@ rm -rf .terraform terraform.tfstate *.backup
-	@ rm -rf key*
 
 help: ## Display this help
 	@ grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
