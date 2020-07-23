@@ -136,15 +136,16 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-.vscode/
 
-.git
-
+# Terraform files
 *.backup
 *.tfstate
-*.code-workspace
-.terraform
+.terraform*
 
+# Credentials
 key*
 *.pem
-ecr_pass
+
+# IDE files
+*.code-workspace
+.vscode/

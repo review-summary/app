@@ -15,6 +15,28 @@ resource "aws_key_pair" "web" {
   public_key = file("key.pub")
 }
 
+# see: https://www.terraform.io/docs/providers/aws/r/iam_role_policy.html
+resource "aws_iam_role" "ec2_role" {
+  name               = "ec2_role"
+  assume_role_policy = file("iam_role_ec2.json")
+}
+
+# see: https://console.aws.amazon.com/iam
+resource "aws_iam_policy" "ecr_s3_access" {
+  name   = "ecr_s3_access"
+  policy = file("iam_policy_ecr_s3.json")
+}
+
+resource "aws_iam_role_policy_attachment" "role_policy_attachment" {
+  role       = aws_iam_role.ec2_role.name
+  policy_arn = aws_iam_policy.ecr_s3_access.arn
+}
+
+resource "aws_iam_instance_profile" "iam_instance_profile" {
+  name = "iam_instance_profile"
+  role = aws_iam_role.ec2_role.name
+}
+
 resource "aws_security_group" "web" {
   name        = "allow-ssh"
   description = "Allow SSH traffic"
@@ -47,6 +69,8 @@ resource "aws_instance" "web" {
   tags = {
       Name = "ws-capstone"
   }
+
+  iam_instance_profile = aws_iam_instance_profile.iam_instance_profile.name
 
   vpc_security_group_ids = [
       aws_security_group.web.id
