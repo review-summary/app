@@ -1,12 +1,14 @@
-# For details see:
+# Using Terraform for AWS:
 # https://www.terraform.io/docs/providers/aws/index.html
 # https://dev.to/aakatev/deploy-ec2-instance-in-minutes-with-terraform-ip2
+#
+# IAM configuration:
+# https://www.terraform.io/docs/providers/aws/r/iam_role_policy.html
+# https://console.aws.amazon.com/iam
+# https://medium.com/@kulasangar/creating-and-attaching-an-aws-iam-role-with-a-policy-to-an-ec2-instance-using-terraform-scripts-aa85f3e6dfff
+# https://medium.com/swlh/aws-iam-assuming-an-iam-role-from-an-ec2-instance-882081386c49
 
-# Read the configuration from enviroment variables:
-# $ export AWS_ACCESS_KEY_ID="anaccesskey"
-# $ export AWS_SECRET_ACCESS_KEY="asecretkey"
-# $ export AWS_DEFAULT_REGION="us-west-2"
-
+# Assume that the credentials are stored as enviroment variables, see README.md for details.
 provider "aws" {}
 
 # Use local ssh keys 'key' and 'key.pub'
@@ -15,13 +17,11 @@ resource "aws_key_pair" "web" {
   public_key = file("key.pub")
 }
 
-# see: https://www.terraform.io/docs/providers/aws/r/iam_role_policy.html
 resource "aws_iam_role" "ec2_role" {
   name               = "ec2_role"
   assume_role_policy = file("iam_role_ec2.json")
 }
 
-# see: https://console.aws.amazon.com/iam
 resource "aws_iam_policy" "ecr_s3_access" {
   name   = "ecr_s3_access"
   policy = file("iam_policy_ecr_s3.json")
