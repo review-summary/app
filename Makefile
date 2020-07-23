@@ -5,7 +5,7 @@ REPOSITORY ?= ws-capstone
 TAG ?= 0.1
 IMAGE ?= $(ECR_URL)/$(REPOSITORY):$(TAG)
 
-# ip address of the EC2 instance
+# IP address of the EC2 instance
 IP ?= $(shell aws ec2 describe-instances --filter Name=tag:Name,Values=ws-capstone \
 		--query 'Reservations[].Instances[].PublicIpAddress' --output text)
 
@@ -35,13 +35,13 @@ infra: ## Setup AWS infrastructure
 	terraform apply -auto-approve
 
 check-ip:
-	ifndef IP
-		$(error IP is not set)
-	endif
+ifndef IP
+	$(error IP is not set)
+endif
 
 setup-aws: check-ip ## Setup AWS EC2 instance and start the docker
-	ssh -o "StrictHostKeyChecking no" -i key ubuntu@$(IP) < scripts/setup_instance.sh
-	ssh -o "StrictHostKeyChecking no" -i key ubuntu@$(IP) "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} \
+	ssh -i key ubuntu@$(IP) < scripts/setup_instance.sh
+	ssh -i key ubuntu@$(IP) "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} \
 		| docker login --username AWS --password-stdin $(ECR_URL) \
 		&& docker run --rm $(IMAGE)"
 
