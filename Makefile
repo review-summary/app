@@ -5,24 +5,17 @@ REPOSITORY ?= ws-capstone
 TAG ?= 0.1
 IMAGE ?= $(ECR_URL)/$(REPOSITORY):$(TAG)
 
-.PHONY: build-docker infrastructure setup-aws run push auth clean help
+# ip address of the EC2 instance
+IP ?= $(shell aws ec2 describe-instances --filter Name=tag:Name,Values=ws-capstone \
+		--query 'Reservations[].Instances[].PublicIpAddress' --output text)
+
+.PHONY: build-docker infrastructure setup-aws run push credentials clean connect check-ip help
 .DEFAULT_GOAL := help
 
-build: auth build-docker push infra setup-aws
+build: credentials build-docker push infra setup-aws
 
 build-docker: ## Build docker
 	docker build --rm -t $(IMAGE) -f Dockerfile .
-
-infra: ## Setup AWS infrastructure
-	terraform apply -auto-approve
-
-setup-aws: ## Setup AWS EC2 instance
-	@ $(eval IP=$(shell aws ec2 describe-instances --filter Name=tag:Name,Values=ws-capstone \
-		--query 'Reservations[].Instances[].PublicIpAddress' --output text))
-	ssh -o "StrictHostKeyChecking no" -i key ubuntu@$(IP) < scripts/setup_instance.sh
-	ssh -o "StrictHostKeyChecking no" -i key ubuntu@$(IP) "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} \
-		| docker login --username AWS --password-stdin $(ECR_URL) \
-		&& docker run --rm $(IMAGE)"
 
 run: ## Run docker image
 	docker run --rm $(IMAGE)
@@ -38,7 +31,21 @@ push: ## Push docker image to remote repository
 	docker push $(IMAGE)
 	@ docker logout
 
-auth: ## Generate SSH keypair
+infra: ## Setup AWS infrastructure
+	terraform apply -auto-approve
+
+check-ip:
+	ifndef IP
+		$(error IP is not set)
+	endif
+
+setup-aws: check-ip ## Setup AWS EC2 instance and start the docker
+	ssh -o "StrictHostKeyChecking no" -i key ubuntu@$(IP) < scripts/setup_instance.sh
+	ssh -o "StrictHostKeyChecking no" -i key ubuntu@$(IP) "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} \
+		| docker login --username AWS --password-stdin $(ECR_URL) \
+		&& docker run --rm $(IMAGE)"
+
+credentials: ## Generate SSH keypair
 	@ rm -rf key*
 	ssh-keygen -t rsa -f key -q -N ""
 	@ chmod 400 key*
@@ -46,6 +53,9 @@ auth: ## Generate SSH keypair
 clean: ## Shutdown AWS and cleanup the working files
 	terraform destroy -auto-approve
 	rm -rf terraform.tfstate *.backup key*
+
+connect: check-ip ## Connect to EC2 instance via SSH
+	ssh -o "StrictHostKeyChecking no" -i key ubuntu@$(IP)
 
 help: ## Display this help
 	@ grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

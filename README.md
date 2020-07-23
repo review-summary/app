@@ -2,10 +2,13 @@
 ## Requirements
 
 First, you need to install [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html),
-[Docker](https://docs.docker.com/get-docker/) (on Ubuntu linux, you can use the `scripts/install_ubuntu.sh`
-script), and [Terraform](https://learn.hashicorp.com/terraform/getting-started/install.html).
+[Docker](https://docs.docker.com/get-docker/), and [Terraform](https://learn.hashicorp.com/terraform/getting-started/install.html). Next, go to the main folder of the repo and run `terraform init` to download the aws plugin for Terraform.
 
-## Setup infrastructure
+## Run the container locally
+
+To build the container run `make build-docker`, and to run it locally use `make run`.
+
+## Run the container on AWS EC3
 
 Before starting, export the AWS credentials ([AWS IAM](https://console.aws.amazon.com/iam/))
 to environment variables (hint: you can add them to `.bashrc`).
@@ -17,18 +20,12 @@ export AWS_SECRET_ACCESS_KEY="secret_key"
 export AWS_DEFAULT_REGION="us-west-2"  # example
 ```
 
-To setup infrastructure, first create SSH keys with `make keys`, then run Terraform
+To setup infrastructure just run `make build`. The command will build the Docker image, push it to
+[ECR](https://docs.aws.amazon.com/AmazonECR/latest/userguide/what-is-ecr.html), setup AWS infrastructure,
+install AWS CLI and Docker on the [EC2](https://console.aws.amazon.com/ec2) machine, and run the Docker image on it.
+If you want to connect to the EC2 instance, just run `make connect` and it will connect you via SSH.
 
-```bash
-terraform init
-terraform apply
-```
+## Turn-off the AWS EC2 instance and clean working files
 
-Terraform will setup virtual machine on [AWS EC2](https://console.aws.amazon.com/ec2).
-To login into the machine, run
-
-```bash
-ssh -i key ubuntu@<ip address of the machine>
-```
-
-Finally, when you want to turn it off, run `terraform destroy` and it will cleanup everything for you.
+Finally, when you want to turn it off, run `make clean` and it will turn off the infrastructure
+(run `terraform destroy`) and cleanup everything for you.
