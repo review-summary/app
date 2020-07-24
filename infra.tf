@@ -38,13 +38,21 @@ resource "aws_iam_instance_profile" "iam_instance_profile" {
 }
 
 resource "aws_security_group" "web" {
-  name        = "allow-ssh"
-  description = "Allow SSH traffic"
+  name        = "web"
+  description = "Allow SSH traffic and open 5000 port"
 
   ingress {
     description = "SSH"
     from_port   = 22
     to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Flask"
+    from_port   = 5000
+    to_port     = 5000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
