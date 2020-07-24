@@ -1,5 +1,10 @@
 # Script reads the AWS_ACCOUNT_ID and AWS_DEFAULT_REGION enviroment variables
 
+SHELL := bash
+.SHELLFLAGS := -eu -o pipefail -c 
+MAKEFLAGS += --warn-undefined-variables
+MAKEFLAGS += --no-builtin-rules
+
 ECR_URL ?= ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
 REPOSITORY ?= ws-capstone
 TAG ?= 0.1
@@ -9,10 +14,10 @@ IMAGE ?= $(ECR_URL)/$(REPOSITORY):$(TAG)
 IP ?= $(shell aws ec2 describe-instances --filter Name=tag:Name,Values=ws-capstone \
 		--query 'Reservations[].Instances[].PublicIpAddress' --output text)
 
-.PHONY: build-docker infrastructure setup-aws run push credentials clean connect check-ip help
-.DEFAULT_GOAL := help
+.DEFAULT_GOAL := help 
+.PHONY: build-docker setup-aws run push clean connect help
 
-build: credentials build-docker push infra setup-aws
+build: key key.pub build-docker push terraform.tfstate setup-aws
 
 build-docker: ## Build docker
 	docker build --rm -t $(IMAGE) -f Dockerfile .
@@ -31,32 +36,34 @@ push: ## Push docker image to remote repository
 	docker push $(IMAGE)
 	@ docker logout
 
-infra: ## Setup AWS infrastructure
+.terraform:
+	terraform init
+
+terraform.tfstate: .terraform ## Setup AWS infrastructure
 	terraform apply -auto-approve
 
-check-ip:
-ifndef IP
-	$(error IP is not set)
-endif
-
-setup-aws: check-ip ## Setup AWS EC2 instance and start the docker
-	@ ssh -i key ubuntu@$(IP) exit
+setup-aws: ## Setup AWS EC2 instance and start the docker
+	@ sleep 3
 	ssh -i key ubuntu@$(IP) < scripts/setup_instance.sh
 	ssh -i key ubuntu@$(IP) "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} \
 		| docker login --username AWS --password-stdin $(ECR_URL) \
 		&& docker run -p 5000:5000 --rm $(IMAGE)"
 
-credentials: ## Generate SSH keypair
-	@ rm -rf key*
+key: ## Generate SSH keypair
 	ssh-keygen -t rsa -f key -q -N ""
 	@ chmod 400 key*
+
+key.pub: key
 
 clean: ## Shutdown AWS and cleanup the working files
 	terraform destroy -auto-approve
 	rm -rf terraform.tfstate *.backup key*
 
-connect: check-ip ## Connect to EC2 instance via SSH
-	ssh -o "StrictHostKeyChecking no" -i key ubuntu@$(IP)
+connect: ## Connect to EC2 instance via SSH
+ifeq ($(IP),)
+	$(error unknown IP address)
+endif
+	ssh -o StrictHostKeyChecking=accept-new -i key ubuntu@$(IP)
 
 help: ## Display this help
 	@ grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
