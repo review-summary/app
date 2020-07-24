@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-sudo apt-get update -yqq
+sudo apt-get update
 sudo apt-get -yqq install apt-transport-https ca-certificates curl software-properties-common unzip
 
 # Docker

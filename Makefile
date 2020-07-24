@@ -43,7 +43,7 @@ setup-aws: check-ip ## Setup AWS EC2 instance and start the docker
 	ssh -i key ubuntu@$(IP) < scripts/setup_instance.sh
 	ssh -i key ubuntu@$(IP) "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} \
 		| docker login --username AWS --password-stdin $(ECR_URL) \
-		&& docker run --rm $(IMAGE)"
+		&& docker run -p 5000:5000 --rm $(IMAGE)"
 
 credentials: ## Generate SSH keypair
 	@ rm -rf key*
