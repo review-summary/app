@@ -40,6 +40,7 @@ ifndef IP
 endif
 
 setup-aws: check-ip ## Setup AWS EC2 instance and start the docker
+	@ ssh -i key ubuntu@$(IP) exit
 	ssh -i key ubuntu@$(IP) < scripts/setup_instance.sh
 	ssh -i key ubuntu@$(IP) "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} \
 		| docker login --username AWS --password-stdin $(ECR_URL) \
