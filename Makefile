@@ -17,7 +17,7 @@ IP ?= $(shell aws ec2 describe-instances --filter Name=tag:Name,Values=ws-capsto
 .DEFAULT_GOAL := help 
 .PHONY: build-docker setup-aws run push clean connect help
 
-build: key key.pub build-docker push terraform.tfstate setup-aws
+build: key key.pub build-docker push terraform.tfstate
 
 build-docker: ## Build docker
 	docker build --rm -t $(IMAGE) -f Dockerfile .

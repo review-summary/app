@@ -1,15 +1,7 @@
-from typing import Collection
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, request
+from inference import preprocess, predict
 
 app = Flask(__name__)
-
-
-def preprocess(documents: Collection[dict]) -> Collection[dict]:
-    return documents
-
-
-def predict(documents: Collection[dict]) -> Collection[dict]:
-    return documents
 
 
 @app.route('/', methods = ['POST'])
