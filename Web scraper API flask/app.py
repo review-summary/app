@@ -5,40 +5,40 @@ import requests
 from dateutil import parser as dateparser
 from time import sleep
 import random
-
+​
 app = Flask(__name__)
 e = Extractor.from_yaml_file('selectors.yml')
 root_url = 'https://www.amazon.com'
 reviews = []
 histogram = {}
 output = {}
-
+​
 def main(url,flag):
     count = 0
     review_count = 0
-
+​
     next_url = url
-
+​
     while flag == 0:
-
+​
         next_url = next_url + '&pageSize=20'
         result = scrape(next_url)
-
+​
         if result['reviews'] == None: 
             print('Trouble with extractor (selectorlib) reading')
             output['reviews'] = reviews
             output['error'] = 'Trouble reading'
             return output
-
+​
         if count == 0:
             for h in result['histogram']:
                 if h['value'] != None:
                     histogram[h['key']] = h['value']
-
+​
             output['histogram'] = histogram
             output['average_rating'] = float(result['average_rating'].split(' out')[0])
             output['number_of_ratings'] = int(result['number_of_reviews'].replace(",", "").split('  customer')[0])
-
+​
         for r in result['reviews']:
             r["product"] = result["product_title"]
             r['url'] = url
@@ -56,21 +56,21 @@ def main(url,flag):
             review_count += 1
             
         print ("Total number of reviews added:", review_count)
-
+​
         next_url = root_url + result['next_page'] if result['next_page'] else root_url
-
+​
         count += 1
         
         result.clear
-
+​
         if next_url == root_url: flag = 1
-
+​
     output['number_of_reviews'] = review_count
     output['reviews'] = reviews
     return output
-
+​
 def scrape(url):    
-
+​
     headers = {
         'dnt': '1',
         'upgrade-insecure-requests': '1',
@@ -83,7 +83,7 @@ def scrape(url):
         'referer': 'https://www.amazon.com/',
         'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
     }
-
+​
     # Download the page using requests
     print("Downloading %s"%url)
     r = requests.get(url, headers=headers)
@@ -100,7 +100,7 @@ def scrape(url):
     sleep(sleep_time)
     # Pass the HTML of the page and create
     return e.extract(r.text)
-
+​
 @app.route('/')
 def api():
     url = request.args.get('url',None)
@@ -108,6 +108,6 @@ def api():
         data = main(url,0)
         return jsonify(data)
     return jsonify({'error':'URL to scrape is not provided'}),400
-
+​
 if __name__ == '__main__':
     app.run(debug=True)

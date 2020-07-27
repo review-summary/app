@@ -4,41 +4,44 @@ import re
 import numpy as np
 from tfidf_model.config import *
 from tfidf_model.utils import *
-print(PATH)
 
+# print(parse(PATH))
 class tfidf_sum():
     def __init__(self):
         self.path = PATH
-        self.asin = asin
+        # self.asin = asin
 
-    def list_product(self, path):
-        products = set()
-        review_count = 0
+    # def list_product(self, path):
+    #     products = set()
+    #     review_count = 0
 
-        for review in parse(self.path):
-            review_count += 1
-            products.add(review['asin'])
-        return products
+    #     for review in parse(self.path):
+    #         review_count += 1
+    #         products.add(review['asin'])
+    #     return products
 
-    # review_count, len(products), review_count / len(products)
-    def process_reviews(self, path, asin):
-
-        raw_reviews = []
-
-        for review in parse(self.path):
-            print(review)
-            if review['asin'] == self.asin:
-                raw_reviews.append(review)
-            elif len(raw_reviews) > 0:
-                # assuming that they're ordered
-                break
-
+    def process_reviews(self, raw_data): #path):
         reviews = []
-        for review in raw_reviews:
-            if review['asin'] == self.asin:
-                reviews.append(preprocess(review['reviewText']))
-            
-        return reviews, raw_reviews
+        raw_reviews2 = raw_data['reviews']
+        for review in raw_reviews2:
+            reviews.append(preprocess(review['content']))
+        # print(reviews)
+        # raw_reviews = []
+
+        # for review in parse(self.path):
+        #     # print(review)
+        #     if review['asin'] == self.asin:
+        #         raw_reviews.append(review)
+        #     elif len(raw_reviews) > 0:
+        #         # assuming that they're ordered
+        #         break
+
+        # reviews = []
+        # for review in raw_reviews:
+        #     if review['asin'] == self.asin:
+        #         reviews.append(preprocess(review['reviewText']))
+           
+        return reviews, raw_reviews2
 
     def tfidf(self, documents):
         # standard TF-IDF, as in https://en.wikipedia.org/wiki/Tf%E2%80%93idf
@@ -91,12 +94,12 @@ class tfidf_sum():
                 avg_sentence_ratings.append(high)
             idx = np.argmax(avg_sentence_ratings)
             
-            summary= self.split_to_sentences(raw['reviewText'])[idx]
-            original_review = re.sub(r'[\t\n ]+', ' ', raw['reviewText'])
+            summary= self.split_to_sentences(raw['content'])[idx]
+            original_review = re.sub(r'[\t\n ]+', ' ', raw['content'])
             summaries.append(summary)
             original_reviews.append(original_review)
 
-            print('Summazrised Review:', self.split_to_sentences(raw['reviewText'])[idx])
-            print(re.sub(r'[\t\n ]+', ' ', raw['reviewText']))
+            print('Summazrised Review:', self.split_to_sentences(raw['content'])[idx])
+            print(re.sub(r'[\t\n ]+', ' ', raw['content']))
             print('\n')
         return summaries, original_reviews

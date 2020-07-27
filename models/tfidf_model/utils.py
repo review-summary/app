@@ -9,11 +9,15 @@ def parse(path):
     # with open(path) as json_file:
     #     for l in json_file:
     #         yield json.loads(l)
-    with open(path) as f:
-        for jsonObj in f:
-            reviewDict = json.loads(jsonObj)
-            reviewsList.append(reviewDict)
-    return reviewsList
+    # with open(path) as f:
+    #     for jsonObj in f:
+    #         reviewDict = json.loads(jsonObj)
+    #         reviewsList.append(reviewDict)
+    with open(path, 'r') as reviews:
+        review_data = reviews.read()
+    
+    obj = json.loads(review_data)
+    return obj
 
 
 def take_n(n):
