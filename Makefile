@@ -23,7 +23,7 @@ build-docker: ## Build docker
 	docker build --rm -t $(IMAGE) -f Dockerfile .
 
 run: ## Run docker image
-	docker run --rm $(IMAGE)
+	docker run -p 5000:5000 --rm $(IMAGE)
 
 push: ## Push docker image to remote repository
 	# For details see:
@@ -60,7 +60,7 @@ clean: ## Shutdown AWS and cleanup the working files
 	rm -rf terraform.tfstate *.backup key*
 
 connect: ## Connect to EC2 instance via SSH
-ifeq ($(IP),)
+ifeq "$(IP)" ""
 	$(error unknown IP address)
 endif
 	ssh -o StrictHostKeyChecking=accept-new -i key ubuntu@$(IP)
