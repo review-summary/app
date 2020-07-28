@@ -1,7 +1,7 @@
 import gzip
 import json
 import re
-from config import *
+from tfidf_model.config import *
 
 def parse(path):
     # g = gzip.open(path, 'r')
