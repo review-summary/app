@@ -15,15 +15,18 @@ IP ?= $(shell aws ec2 describe-instances --filter Name=tag:Name,Values=ws-capsto
 		--query 'Reservations[].Instances[].PublicIpAddress' --output text)
 
 .DEFAULT_GOAL := help 
-.PHONY: build-docker setup-aws run push clean connect help
+.PHONY: docker setup-aws run push clean connect test help
 
-build: key key.pub build-docker push terraform.tfstate
+build: key key.pub docker push terraform.tfstate
 
-build-docker: ## Build docker
+docker: ## Build docker
 	docker build --rm -t $(IMAGE) -f Dockerfile .
 
 run: ## Run docker image
 	docker run -p 5000:5000 --rm $(IMAGE)
+
+test: docker ## Run docker image
+	docker run --rm $(IMAGE) pytest /app/tests
 
 push: ## Push docker image to remote repository
 	# For details see:
