@@ -4,15 +4,41 @@
 <head>
     <meta charset="UTF-8">
     <title>Review Nuggets</title>
+    <style type="text/css">
+        #main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2%;
+        }
+        .quotes {
+            font-family: Arial, Helvetica, sans-serif;
+            font-style: italic;
+            width: 50%;
+            margin-top: 1.5%;
+            border: lightgray 1px solid;
+            padding: 2% 1%;
+        }
+    </style>
 </head>
 
 <body>
-    <select name=products method="POST" action="/form">
-        {% for product in products %}
-        <option value="{{product}}" SELECTED>{{product}}</option>"
-        {% endfor %}
-    </select>
-    <div>{{selected}}</div>
+    <div id="main">
+        <form action="/form" method="POST">
+            <select name=products>
+                {% for product in products %}
+                <option value="{{product}}">{{product}}</option>"
+                {% endfor %}
+            </select>
+            <input type="submit">
+        </form>
+        <div class="quotes">{{selected}}</div>
+        <div class="quotes">{{selected}}</div>
+        <div class="quotes">{{selected}}</div>
+        <div class="quotes">{{selected}}</div>
+        <div class="quotes">{{selected}}</div>
+    </div>
 </body>
 
 </html>

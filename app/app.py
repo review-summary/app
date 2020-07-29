@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, redirect, url_for
 from models.arbitrary import predict
 
 app = Flask(__name__)
@@ -22,9 +22,11 @@ def form():
         "The Last Life: A Novel",
     ]
     if request.method == 'POST':
-        selected = request.form.get("products", "")
-        return render_template('form.html', products=products, selected=selected)
-    return render_template('form.html', products=products)
+        selected = request.form.get("products")
+        print(selected)
+    else:
+        selected = ""
+    return render_template('form.html', products=products, selected=selected)
 
 
 if __name__=="__main__":
