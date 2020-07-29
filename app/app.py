@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from models.tfidf import predict
+from models.arbitrary import predict
 
 app = Flask(__name__)
 
