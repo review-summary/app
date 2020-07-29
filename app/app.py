@@ -1,15 +1,13 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, request
+from models.arbitrary import predict
 
 app = Flask(__name__)
 
 
-@app.route('/', methods = ['GET', 'POST'])
-def echo():
-    if request.method == 'GET':
-        data = request.args
-    else:
-        data = request.get_json()
-    return jsonify(data)
+@app.route('/', methods = ['POST'])
+def main():
+    data = request.get_json()
+    return jsonify(predict(data))
 
 
 if __name__=="__main__":
