@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Review Nuggets</title>
+</head>
+
+<body>
+    <select name=products method="POST" action="/form">
+        {% for product in products %}
+        <option value="{{product}}" SELECTED>{{product}}</option>"
+        {% endfor %}
+    </select>
+    <div>{{selected}}</div>
+</body>
+
+</html>
