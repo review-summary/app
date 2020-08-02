@@ -1,6 +1,6 @@
 import random
 from gensim.summarization.summarizer import summarize
-from preprocessing import extract_sentences, lemmatize_stemming, token_lemmatize, bow
+from preprocessing import extract_sentences, lemmatize_stemming, token_lemmatize, bow, split_sentences
 from models.lda import *
 from models.train import *
 
@@ -29,7 +29,12 @@ def review_2_topic(documents, lda_model, bow_corpus):
 
     #Dedupe
     dedupe_topic_review_df = topic_review_df.drop_duplicates(['reviewText', 'overall', 'vote'])
-    dedupe_topic_review_df['reviewText'] = dedupe_topic_review_df['reviewText'].apply(summarize, ratio=0.5)
-    sorted_topic_review_df = dedupe_topic_review_df.sort_values(by=['vote'], ascending=False)
-
-    return sorted_topic_review_df[sorted_topic_review_df['topic']==1].iloc[:2,:], sorted_topic_review_df[sorted_topic_review_df['topic']==0]
+    # print(dedupe_topic_review_df)
+    # mask = len(dedupe_topic_review_df['reviewText']) > 1
+    short_review_removed_topic_review_df = dedupe_topic_review_df[dedupe_topic_review_df['reviewText'].map(split_sentences).map(len)>2]
+    # print(short_review_removed_topic_review_df)
+    short_review_removed_topic_review_df['reviewText'] = short_review_removed_topic_review_df['reviewText'].apply(summarize, ratio=0.5)
+    sorted_topic_review_df = short_review_removed_topic_review_df.sort_values(by=['vote'], ascending=False)
+    sorted_topic_review_df = sorted_topic_review_df[sorted_topic_review_df['reviewText'].map(len)>1]
+    print(sorted_topic_review_df)
+    return sorted_topic_review_df[sorted_topic_review_df['topic']==1], sorted_topic_review_df[sorted_topic_review_df['topic']==0]

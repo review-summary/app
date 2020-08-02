@@ -31,7 +31,7 @@ def extract_sentences(text, min_length = 10):
     return [sentence for sentence in sentences if len(sentence) >= min_length]
 
 def lemmatize_stemming(text):
-    nltk.download('wordnet')
+    # nltk.download('wordnet')
     stemmer = SnowballStemmer("english")
     return stemmer.stem(WordNetLemmatizer().lemmatize(text, pos='v'))
 

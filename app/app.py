@@ -34,7 +34,18 @@ def form():
         selected = ""
     documents_rating_1, documents_rating_5, bow_corpus_1, bow_corpus_5, model_1, model_5 = run_model(products[0])
     sorted_topic_review_df_1_t1, sorted_topic_review_df_1_t0 = review_2_topic(documents_rating_1, model_1, bow_corpus_1)
-    return render_template('form.html', products=products, selected=sorted_topic_review_df_1_t1.iloc[0]['reviewText'])
+    # print(documents_rating_5)
+    # print(model_5)
+    # print(bow_corpus_5)
+    sorted_topic_review_df_5_t1, sorted_topic_review_df_5_t0 = review_2_topic(documents_rating_5, model_5, bow_corpus_5)
+    # print(sorted_topic_review_df_5_t1, sorted_topic_review_df_5_t0)
+    return render_template('form.html', products=products, selected=sorted_topic_review_df_1_t1.iloc[0]['reviewText'], 
+    pos1=sorted_topic_review_df_5_t0.iloc[0]['reviewText'], 
+    pos2=sorted_topic_review_df_5_t0.iloc[1]['reviewText'], 
+    pos3=sorted_topic_review_df_5_t1.iloc[0]['reviewText'], 
+    neg1=sorted_topic_review_df_1_t0.iloc[0]['reviewText'], 
+    neg2=sorted_topic_review_df_1_t1.iloc[1]['reviewText'], 
+    neg3=sorted_topic_review_df_1_t1.iloc[2]['reviewText'])
 
 
 if __name__=="__main__":
