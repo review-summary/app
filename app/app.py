@@ -34,7 +34,7 @@ def form():
         selected = ""
     documents_rating_1, documents_rating_5, bow_corpus_1, bow_corpus_5, model_1, model_5 = run_model(products[0])
     sorted_topic_review_df_1_t1, sorted_topic_review_df_1_t0 = review_2_topic(documents_rating_1, model_1, bow_corpus_1)
-    return render_template('form.html', products=products, selected=selected)
+    return render_template('form.html', products=products, selected=sorted_topic_review_df_1_t1.iloc[0]['reviewText'])
 
 
 if __name__=="__main__":
