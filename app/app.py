@@ -44,7 +44,7 @@ def form():
     else:
         selected = ""
         p1 = p2 = n1 = n2 = ""
-    return render_template('form.html', products=products, selected="Temparaily Unavailable", 
+    return render_template('form.html', products=products, selected=selected, 
     pos1=p1, 
     pos2=p2, 
     # pos3=p3, 

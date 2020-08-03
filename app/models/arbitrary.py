@@ -1,4 +1,5 @@
 import random
+import re
 from gensim.summarization.summarizer import summarize
 from preprocessing import extract_sentences, lemmatize_stemming, token_lemmatize, bow, split_sentences
 from models.lda import *
@@ -12,8 +13,15 @@ def predict(reviews, num_sentences = 5):
 
 def run_model(product_name):
     bow_corpus_1, dictionary_1, bow_corpus_5, dictionary_5, documents_rating_1, documents_rating_5 = process_reviews(product_name)
-    model_1 = lda_model(bow_corpus_1, dictionary_1)
-    model_5 = lda_model(bow_corpus_5, dictionary_5)
+    model_name_1 = re.sub("[ ,']", '_', product_name) + "_1_star.model"
+    model_name_5 = re.sub("[ ,']", '_', product_name) + "_5_star.model"
+    try:
+        print("Loading LDA models...")
+        model_1 = load_lda_model("app/models/saved_models/lda/" + model_name_1)
+        model_5 = load_lda_model("app/models/saved_models/lda/" + model_name_5)
+    except:
+        model_1 = lda_model(bow_corpus_1, dictionary_1, model_name_1)
+        model_5 = lda_model(bow_corpus_5, dictionary_5, model_name_5)
     return documents_rating_1, documents_rating_5, bow_corpus_1, bow_corpus_5, model_1, model_5
 
 def review_2_topic(documents, lda_model, bow_corpus):
