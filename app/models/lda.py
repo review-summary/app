@@ -18,11 +18,10 @@ def lda_model(bow_corpus, dictionary, fname):
                                        passes=50,
                                        minimum_probability=0.02,
                                        random_state=41)
+    # Save Model
     lda_model.save("app/models/saved_models/lda/" + fname)
     return lda_model
-# Save Model
-# def save_lda_model(model, fname):
-    
+
 # Load Model
 def load_lda_model(fname):
     model =  gensim.models.LdaMulticore.load(fname)
