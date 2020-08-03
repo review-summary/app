@@ -31,25 +31,26 @@ def form():
         selected = request.form.get("products")
         print(selected)
         documents_rating_1, documents_rating_5, bow_corpus_1, bow_corpus_5, model_1, model_5 = run_model(selected)
-        sorted_topic_review_df_1_t1, sorted_topic_review_df_1_t0 = review_2_topic(documents_rating_1, model_1, bow_corpus_1)
-        sorted_topic_review_df_5_t1, sorted_topic_review_df_5_t0 = review_2_topic(documents_rating_5, model_5, bow_corpus_5)
+        sorted_topic_review_df_1_t0, sorted_topic_review_df_1_t1 = review_2_topic(documents_rating_1, model_1, bow_corpus_1)
+        sorted_topic_review_df_5_t0, sorted_topic_review_df_5_t1 = review_2_topic(documents_rating_5, model_5, bow_corpus_5)
         # print(sorted_topic_review_df_5_t0)
         p1 = sorted_topic_review_df_5_t0.iloc[0]['reviewText']
-        p2 = sorted_topic_review_df_5_t0.iloc[1]['reviewText']
-        p3 = sorted_topic_review_df_5_t1.iloc[0]['reviewText']
+        p2 = sorted_topic_review_df_5_t1.iloc[0]['reviewText']
+        # p3 = sorted_topic_review_df_5_t2.iloc[0]['reviewText']
         n1 = sorted_topic_review_df_1_t0.iloc[0]['reviewText']
-        n2 = sorted_topic_review_df_1_t1.iloc[1]['reviewText']
-        n3 = sorted_topic_review_df_1_t1.iloc[2]['reviewText']
+        n2 = sorted_topic_review_df_1_t1.iloc[0]['reviewText']
+        # n3 = sorted_topic_review_df_1_t2.iloc[0]['reviewText']
+        print(p1, p2, n1, n2)
     else:
         selected = ""
-        p1 = p2 = p3 = n1 = n2 = n3 = ""
+        p1 = p2 = n1 = n2 = ""
     return render_template('form.html', products=products, selected="Temparaily Unavailable", 
     pos1=p1, 
     pos2=p2, 
-    pos3=p3, 
+    # pos3=p3, 
     neg1=n1,
-    neg2=n2, 
-    neg3=n3)
+    neg2=n2)
+    # neg3=n3)
 
 
 if __name__=="__main__":

@@ -22,19 +22,5 @@ def lda_model(bow_corpus, dictionary):
 # Save Model
 
 # Load Model
-# def review_2_topic(lda_model, bow_corpus):
-# # Classify all docs into their topics
-# # doc_topics = lda_model.get_document_topics(bow=bow_corpus[3], minimum_probability=None, minimum_phi_value=None, per_word_topics=False)
 
-#     reviews2topics = {}
-#     for i in range(len(bow_corpus)):    
-#         review_topic = lda_model.get_document_topics(bow=bow_corpus[i], minimum_probability=None, minimum_phi_value=None, per_word_topics=False)
-#         reviews2topics[i] = max(review_topic,key=itemgetter(1))[0]
-
-#     topic_review_df = documents.copy()
-#     topic_review_df['topic'] = pd.Series(reviews2topics)
-
-#     #Dedupe
-#     dedupe_topic_review_df = topic_review_df.drop_duplicates(['reviewText', 'overall', 'vote'])
-#     return dedupe_topic_review_df
 

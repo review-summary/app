@@ -30,8 +30,9 @@ def review_2_topic(documents, lda_model, bow_corpus):
     #Dedupe
     dedupe_topic_review_df = topic_review_df.drop_duplicates(['reviewText', 'overall', 'vote'])
     short_review_removed_topic_review_df = dedupe_topic_review_df[dedupe_topic_review_df['reviewText'].map(split_sentences).map(len)>1]
-    print(short_review_removed_topic_review_df)
+    # commented out summarize code as the function requires more than 1 sentence to work, even with the filter above set to len > 3, summarize does not always work...
+    # Replace with tfidf or other summarizer
     # short_review_removed_topic_review_df['reviewText'] = short_review_removed_topic_review_df['reviewText'].apply(summarize, ratio=0.5)
     sorted_topic_review_df = short_review_removed_topic_review_df.sort_values(by=['vote'], ascending=False)
     sorted_topic_review_df = sorted_topic_review_df[sorted_topic_review_df['reviewText'].map(len)>1]
-    return sorted_topic_review_df[sorted_topic_review_df['topic']==1], sorted_topic_review_df[sorted_topic_review_df['topic']==0]
+    return sorted_topic_review_df[sorted_topic_review_df['topic']==0], sorted_topic_review_df[sorted_topic_review_df['topic']==1]#, sorted_topic_review_df[sorted_topic_review_df['topic']==2]
