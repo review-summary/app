@@ -24,7 +24,7 @@ def form():
         "Levi's Men's 501 Original-Fit Jeans, Trashed, 33W x 32L",
         "Hanes Absolutely Ultra Sheer Sheer Control Top SF (Single) Size:E Color:Jet",
         "Merrell Women's Jungle Moc Taupe Slip-On Shoe - 8.5 B(M) US",
-        "sofsy Soft-Touch Rayon Blend Tie Front Nursing & Maternity Fashion Top Charcoal Small",
+        # "sofsy Soft-Touch Rayon Blend Tie Front Nursing & Maternity Fashion Top Charcoal Small",
         # "The Last Life: A Novel"
     ]
     if request.method == 'POST':
