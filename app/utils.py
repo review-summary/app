@@ -14,6 +14,7 @@ def load_data(file_path, product_name=None):
         data = json.load(open(file_path))
     prod_revs = data[product_name]
     df = pd.DataFrame.from_dict(prod_revs)
+    df = df.dropna(subset=['reviewText'])
     return df
 
 # def dict_to_df(reviews, i):

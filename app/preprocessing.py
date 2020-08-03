@@ -23,7 +23,7 @@ def extract_words(sentences):
 
 
 def split_sentences(text):
-    return re.sub(r'(\s*[.?!]\s*)', 'SEP', text).split('SEP')
+    return re.sub(r'(\s*[.?!\n]\s*)', 'SEP', text).split('SEP')
 
 
 def extract_sentences(text, min_length = 10):

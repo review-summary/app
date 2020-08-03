@@ -7,7 +7,7 @@ from models.train import *
 app = Flask(__name__)
 
 
-product_name = "Disney Mickey Mouse Deluxe Boys' Costume"
+# product_name = "Disney Mickey Mouse Deluxe Boys' Costume"
 
 
 @app.route('/', methods=['POST'])
@@ -25,27 +25,31 @@ def form():
         "Hanes Absolutely Ultra Sheer Sheer Control Top SF (Single) Size:E Color:Jet",
         "Merrell Women's Jungle Moc Taupe Slip-On Shoe - 8.5 B(M) US",
         "sofsy Soft-Touch Rayon Blend Tie Front Nursing & Maternity Fashion Top Charcoal Small",
-        "The Last Life: A Novel"
+        # "The Last Life: A Novel"
     ]
     if request.method == 'POST':
         selected = request.form.get("products")
         print(selected)
+        documents_rating_1, documents_rating_5, bow_corpus_1, bow_corpus_5, model_1, model_5 = run_model(selected)
+        sorted_topic_review_df_1_t1, sorted_topic_review_df_1_t0 = review_2_topic(documents_rating_1, model_1, bow_corpus_1)
+        sorted_topic_review_df_5_t1, sorted_topic_review_df_5_t0 = review_2_topic(documents_rating_5, model_5, bow_corpus_5)
+        # print(sorted_topic_review_df_5_t0)
+        p1 = sorted_topic_review_df_5_t0.iloc[0]['reviewText']
+        p2 = sorted_topic_review_df_5_t0.iloc[1]['reviewText']
+        p3 = sorted_topic_review_df_5_t1.iloc[0]['reviewText']
+        n1 = sorted_topic_review_df_1_t0.iloc[0]['reviewText']
+        n2 = sorted_topic_review_df_1_t1.iloc[1]['reviewText']
+        n3 = sorted_topic_review_df_1_t1.iloc[2]['reviewText']
     else:
         selected = ""
-    documents_rating_1, documents_rating_5, bow_corpus_1, bow_corpus_5, model_1, model_5 = run_model(products[0])
-    sorted_topic_review_df_1_t1, sorted_topic_review_df_1_t0 = review_2_topic(documents_rating_1, model_1, bow_corpus_1)
-    # print(documents_rating_5)
-    # print(model_5)
-    # print(bow_corpus_5)
-    sorted_topic_review_df_5_t1, sorted_topic_review_df_5_t0 = review_2_topic(documents_rating_5, model_5, bow_corpus_5)
-    # print(sorted_topic_review_df_5_t1, sorted_topic_review_df_5_t0)
-    return render_template('form.html', products=products, selected=sorted_topic_review_df_1_t1.iloc[0]['reviewText'], 
-    pos1=sorted_topic_review_df_5_t0.iloc[0]['reviewText'], 
-    pos2=sorted_topic_review_df_5_t0.iloc[1]['reviewText'], 
-    pos3=sorted_topic_review_df_5_t1.iloc[0]['reviewText'], 
-    neg1=sorted_topic_review_df_1_t0.iloc[0]['reviewText'], 
-    neg2=sorted_topic_review_df_1_t1.iloc[1]['reviewText'], 
-    neg3=sorted_topic_review_df_1_t1.iloc[2]['reviewText'])
+        p1 = p2 = p3 = n1 = n2 = n3 = ""
+    return render_template('form.html', products=products, selected="Temparaily Unavailable", 
+    pos1=p1, 
+    pos2=p2, 
+    pos3=p3, 
+    neg1=n1,
+    neg2=n2, 
+    neg3=n3)
 
 
 if __name__=="__main__":
