@@ -17,7 +17,7 @@ IP ?= $(shell aws ec2 describe-instances --filter Name=tag:Name,Values=ws-capsto
 .DEFAULT_GOAL := help
 .PHONY: docker setup-aws run push clean connect test help
 
-build: key key.pub docker push terraform.tfstate
+build: key key.pub docker push terraform.tfstate run-docker-on-aws
 
 docker: ## Build docker
 	docker build --rm -t $(IMAGE) -f Dockerfile .
@@ -45,12 +45,19 @@ push: ## Push docker image to remote repository
 terraform.tfstate: .terraform ## Setup AWS infrastructure
 	terraform apply -auto-approve
 
+define run_docker_on_aws
+	docker run -p 5000:5000 --rm $(IMAGE)"
+endef
+
 setup-aws: ## Setup AWS EC2 instance and start the docker
 	@ sleep 3
 	ssh -i key ubuntu@$(IP) < scripts/setup_instance.sh
 	ssh -i key ubuntu@$(IP) "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} \
 		| docker login --username AWS --password-stdin $(ECR_URL) \
-		&& docker run -p 5000:5000 --rm $(IMAGE)"
+		&& $(run_docker_on_aws)
+
+run-docker-on-aws:
+	$(run_docker_on_aws)
 
 key: ## Generate SSH keypair
 	ssh-keygen -t rsa -f key -q -N ""
