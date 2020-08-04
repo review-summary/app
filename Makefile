@@ -46,7 +46,7 @@ terraform.tfstate: .terraform ## Setup AWS infrastructure
 	terraform apply -auto-approve
 
 define run_docker_on_aws
-	docker run -p 5000:5000 --rm $(IMAGE)"
+	docker run -p 5000:5000 --rm $(IMAGE)
 endef
 
 setup-aws: ## Setup AWS EC2 instance and start the docker
@@ -54,7 +54,7 @@ setup-aws: ## Setup AWS EC2 instance and start the docker
 	ssh -i key ubuntu@$(IP) < scripts/setup_instance.sh
 	ssh -i key ubuntu@$(IP) "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} \
 		| docker login --username AWS --password-stdin $(ECR_URL) \
-		&& $(run_docker_on_aws)
+		&& $(run_docker_on_aws)"
 
 run-docker-on-aws:
 	$(run_docker_on_aws)
