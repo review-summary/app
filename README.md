@@ -7,7 +7,7 @@ plugin for Terraform.
 
 ## Run the container locally
 
-To build the container run `make build -docker`, and to run it locally use `make run`.
+To build the container run `make docker`, and to run it locally use `make run`.
 
 ## Run the container on AWS EC3
 
