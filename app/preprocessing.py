@@ -12,8 +12,8 @@ def clean(text):
     return text
 
 
-def extract_words(sentences):
-    return [sentence.strip().split(' ') for sentence in sentences if sentence != '']
+def extract_words(sentence):
+    return [word for word in sentence.strip().split(' ') if word != '']
 
 
 def split_sentences(text):
