@@ -4,13 +4,7 @@ from models.arbitrary import predict
 app = Flask(__name__)
 
 
-@app.route('/', methods=['POST'])
-def main():
-    data = request.get_json()
-    return jsonify(predict(data))
-
-
-@app.route('/form', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def form():
     products = [
         "Disney Mickey Mouse Deluxe Boys' Costume",
