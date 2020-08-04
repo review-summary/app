@@ -13,6 +13,8 @@ def preprocessed(documents):
 def tfidf_encode(documents):
     """TF-IDF encoder
 
+    Implements standard TF-IDF, as described in https://en.wikipedia.org/wiki/Tf%E2%80%93idf
+
     >>> import re
     >>> corpus = [
         'This is the first document.',
@@ -34,7 +36,6 @@ def tfidf_encode(documents):
      [0.0, 0.0, 0.0, 0.6931471805599453, 0.0, 1.3862943611198906]]
 
     """
-    # standard TF-IDF, as in https://en.wikipedia.org/wiki/Tf%E2%80%93idf
 
     N = len(documents)
     df = Counter()
