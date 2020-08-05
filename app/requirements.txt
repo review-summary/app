@@ -1,3 +1,9 @@
 flask
 numpy
 pytest
+nltk
+gensim
+nltk
+keras
+sklearn
+sentence-transformers==0.2.5
