@@ -1,7 +1,7 @@
 # Script reads the AWS_ACCOUNT_ID and AWS_DEFAULT_REGION enviroment variables
 
 SHELL := bash
-.SHELLFLAGS := -eu -o pipefail -c 
+.SHELLFLAGS := -eu -o pipefail -c
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
@@ -14,7 +14,7 @@ IMAGE ?= $(ECR_URL)/$(REPOSITORY):$(TAG)
 IP ?= $(shell aws ec2 describe-instances --filter Name=tag:Name,Values=ws-capstone \
 		--query 'Reservations[].Instances[].PublicIpAddress' --output text)
 
-.DEFAULT_GOAL := help 
+.DEFAULT_GOAL := help
 .PHONY: docker setup-aws run push clean connect test help
 
 build: key key.pub docker push terraform.tfstate
@@ -45,12 +45,19 @@ push: ## Push docker image to remote repository
 terraform.tfstate: .terraform ## Setup AWS infrastructure
 	terraform apply -auto-approve
 
+define run_docker_on_aws
+	docker run -p 5000:5000 --rm $(IMAGE)
+endef
+
 setup-aws: ## Setup AWS EC2 instance and start the docker
 	@ sleep 3
 	ssh -i key ubuntu@$(IP) < scripts/setup_instance.sh
 	ssh -i key ubuntu@$(IP) "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} \
 		| docker login --username AWS --password-stdin $(ECR_URL) \
-		&& docker run -p 5000:5000 --rm $(IMAGE)"
+		&& $(run_docker_on_aws)"
+
+run-docker-on-aws:
+	ssh -i key ubuntu@$(IP) "$(run_docker_on_aws)"
 
 key: ## Generate SSH keypair
 	ssh-keygen -t rsa -f key -q -N ""
@@ -66,7 +73,7 @@ connect: ## Connect to EC2 instance via SSH
 ifeq "$(IP)" ""
 	$(error unknown IP address)
 endif
-	ssh -o StrictHostKeyChecking=accept-new -i key ubuntu@$(IP)
+	ssh -o -i key ubuntu@$(IP)
 
 help: ## Display this help
 	@ grep -E '^[a-zA-Z_-.]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
