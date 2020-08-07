@@ -1,88 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
-​
+
 <head>
-    <meta charset="UTF-8">
-    <title>Review Nuggets</title>
-    <style type="text/css">
-        #main {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin-top: 2%;
-        }
-        .quotes {
-            font-family: Arial, Helvetica, sans-serif;
-            font-style: italic;
-            width: 50%;
-            margin-top: 1.5%;
-            border: lightgray 1px solid;
-            padding: 2% 1%;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Review Nuggets</title>
+  <style type="text/css">
+    #main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2%;
+    }
+
+    #quotes {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, Helvetica, sans-serif;
+      font-style: italic;
+      width: 80%;
+    }
+
+    #positive {
+      background-color: lightgreen;
+    }
+
+    #negative {
+      background-color: lightsalmon;
+    }
+
+    .quote {
+      padding: 5px;
+    }
+
+    .quotes-group {
+      margin-top: 2%;
+    }
+  </style>
 </head>
 ​
-<body style="background-color:snow;">
-    <div id="main">
-        <form action="/" method="POST">
-            <select name=products>
-                {% for product in products %}
-                <option value="{{product}}">{{product}}</option>"
-                {% endfor %}
-            </select>
-            <input type="submit">
-        </form>
-        <h2>Overall summary</h2>
-        <div class="quotes">{{selected}}</div>
-        <!-- <div class="quotes">{{selected}}</div>
-        <div class="quotes">{{selected}}</div> -->
-    </div>
-​
-</body>
-​
-</html>
-​
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-* {
-  box-sizing: border-box;
-}
-​
-/* Create two equal columns that floats next to each other */
-.column {
-  float: left;
-  width: 50%;
-  padding: 10px;
-  height: 300px; /* Should be removed. Only for demonstration */
-}
-​
-/* Clear floats after the columns */
-.row:after {
-  content: "";
-  display: table;
-  clear: both;
-}
-</style>
-</head>
+
 <body>
-​
-<div class="row">
-  <div class="column" style="background-color:snow;">
-    <h2>Positive reviews summary</h2>
-    <div class="quotes">{{pos1}}</div>
-    <div class="quotes">{{pos2}}</div>
-    <!-- <div class="quotes">{{pos3}}</div> -->
+  <div id="main">
+    <form action="/" method="POST">
+      <select name=products>
+        {% for product in products %}
+        <option value="{{product}}">{{product}}</option>"
+        {% endfor %}
+      </select>
+      <input type="submit">
+    </form>
+
   </div>
-  <div class="column" style="background-color:snow;">
-    <h2>Negative reviews summary</h2>
-    <div class="quotes">{{neg1}}</div>
-    <div class="quotes">{{neg2}}</div>
-    <!-- <div class="quotes">{{neg3}}</div> -->
+  ​​
+  {% if selected is not none %}
+  <div id="quotes">
+    <div class="quotes-group" id="positive">
+      {% for quote in positive %}
+      <div class="quote">{{quote}}</div>
+      {% endfor %}
+    </div>
+
+    <div class="quotes-group" id="negative">
+      {% for quote in negative %}
+      <div class="quote">{{quote}}</div>
+      {% endfor %}
+    </div>
   </div>
-</div>
-​
+  {% endif %}
+  ​
 </body>
+
 </html>
