@@ -49,4 +49,4 @@ def rating_splitter(core_data, rating_range=list(range(1,6))):
 
 def read_split(file_path, product_name=None):
     raw_data = load_data(file_path, product_name)
-    return rating_splitter(raw_data)
+    return rating_splitter(raw_data), raw_data
