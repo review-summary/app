@@ -6,4 +6,5 @@ gensim
 nltk
 keras
 sklearn
-sentence-transformers==0.2.5
+sentence-transformers
+scipy
