@@ -50,7 +50,7 @@ def bert_encode(sentences):
     model = SentenceTransformer('bert-base-nli-max-tokens')
     vec = np.array(model.encode(sentences, show_progress_bar=True))
 
-def lda_bert(model, corpus, sentences, gamma)
+def lda_bert(model, corpus, sentences, gamma):
     vec = {}
     vec_lda = get_vec_lda(model, corpus, k=2)
     vec_bert = bert_encode(sentences)
