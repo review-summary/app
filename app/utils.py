@@ -13,7 +13,7 @@ def load_data(file_path, product_name=None):
     with open(file_path) as f:
         data = json.load(open(file_path))
     prod_revs = data[product_name]
-    df = pd.DataFrame.from_dict(prod_revs)
+    df = pd.DataFrame.from_dict(prod_revs).drop_duplicates(['reviewText', 'overall', 'vote'])
     df = df.dropna(subset=['reviewText'])
     return df
 
