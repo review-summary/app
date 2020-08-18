@@ -4,7 +4,7 @@ import numpy as np
 import logging
 
 from models.bert import bert_model
-from models.clusterer import clustering
+from models.clusterer import clustering, closest_points_to_cluster_centroid
 
 log = logging.getLogger(__name__)
 app = Flask(__name__)
@@ -30,28 +30,34 @@ def form():
         selected = request.form.get("products")
         log.info("Making predictions for: %s", selected)
 
-        m = 5 # Num closest reviews to cluster centroid
-        num_clusters = 5
+        m = 3 # Num closest reviews to cluster centroid
+        num_clusters = 3
         final_display_1 = {} # Negative reviews
+        
         final_display_5 = {} # Positive reviews
 
-        corpus_embeddings_1, corpus_embeddings_5, corpus = bert_model(selected)
-        cluster_assignment_1, centers_1 = clustering(corpus_embeddings_1, num_clusters = 5)
-        cluster_assignment_5, centers_5 = clustering(corpus_embeddings_5, num_clusters = 5)
+        corpus_embeddings_1, corpus_embeddings_5, corpus_1, corpus_5 = bert_model(selected)
+        cluster_assignment_1_star, centers_1 = clustering(corpus_embeddings_1, num_clusters)
+        cluster_assignment_5_star, centers_5 = clustering(corpus_embeddings_5, num_clusters)
+
+        close_reviews_to_centroid_1 = closest_points_to_cluster_centroid(cluster_assignment_1_star, corpus_1, centers_1, corpus_embeddings_1, m)
+        close_reviews_to_centroid_5 = closest_points_to_cluster_centroid(cluster_assignment_5_star, corpus_5, centers_5, corpus_embeddings_5, m)
 
         def display(num_clusters, cluster_assignment, corpus_embeddings, cluster_centers, corpus, final_display):
             for k in range(num_clusters):
-                cluster_indices = np.where(cluster_assignment == k)[0]
-                cluster_embeddings = [corpus_embeddings[i] for i in cluster_indices]
+                review_indices_cluster_k = np.where(cluster_assignment == k)[0]
+                cluster_embeddings = [corpus_embeddings[i] for i in review_indices_cluster_k]
+                # Find embeddings for each cluster
+                centroid = cluster_centers[k]
                 distance_from_centroids = scipy.spatial.distance.cdist(cluster_centers, cluster_embeddings, "cosine")
-                closest_sentence_indices = distance_from_centroids[4].argsort()[-m:][::-1]
+                closest_sentence_indices = distance_from_centroids[k].argsort()[-m:][::-1]
                 display_sentences = [corpus[j] for j in closest_sentence_indices]
                 final_display[k] = display_sentences
+
             return final_display
         
-        final_display_1 = display(num_clusters, cluster_assignment_1, corpus_embeddings_1, centers_1, corpus, final_display_1)
-        final_display_5 = display(num_clusters, cluster_assignment_5, corpus_embeddings_5, centers_5, corpus, final_display_5)
-        
+        final_display_1 = display(num_clusters, cluster_assignment_1_star, corpus_embeddings_1, centers_1, corpus_1, final_display_1)
+        final_display_5 = display(num_clusters, cluster_assignment_5_star, corpus_embeddings_5, centers_5, corpus_5, final_display_5)
         log.info("Predicted: %s", final_display_1)
         # First index is the cluster, second index is the review index for that cluster (0 is closest to cluster centroid)
         # Play around with below to make them work with final UI design!
@@ -59,10 +65,13 @@ def form():
         num_clusters = len(final_display_5)
         
         for i in range(num_clusters):
-            pos.append(final_display_5[i][0])
-            neg.append(final_display_1[i][0])
-        
-    return render_template('form.html', products=products, selected=selected, positive=pos, negative=neg)
+            for j in range(len(final_display_5[i])):
+                pos.append(final_display_5[i][j])
+            for k in range(len(final_display_1[i])):
+                neg.append(final_display_1[i][k])
+    else:
+        close_reviews_to_centroid_5 = close_reviews_to_centroid_1 = {}
+    return render_template('form.html', products=products, selected=selected, positive=close_reviews_to_centroid_5.values(), negative=close_reviews_to_centroid_1.values())
 
 
 if __name__=="__main__":
