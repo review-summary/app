@@ -27,10 +27,10 @@ def closest_points_to_cluster_centroid(cluster_assignment, corpus, centers, corp
         # Centroid for ith cluster, reshape for pairwise_distances function below
         center_vec = centers[i].reshape(1, -1)
         # For each of the cluster, find the indices in cluster_assignment
-        data_idx_within_i_cluster = [ idx for idx, clu_num in enumerate(m_clusters) if clu_num == i ]
+        data_idx_within_i_cluster = [idx for idx, clu_num in enumerate(m_clusters) if clu_num == i]
         # print("data_idx_within_i_cluster", data_idx_within_i_cluster)
         # Each row represent a review in the ith cluster, col represents the embedding size
-        one_cluster_tf_matrix = np.zeros( (  len(data_idx_within_i_cluster) , centers.shape[1] ) )
+        one_cluster_tf_matrix = np.zeros((len(data_idx_within_i_cluster), centers.shape[1]))
         # Populate each row with rating specific review embeddings
         for row_num, data_idx in enumerate(data_idx_within_i_cluster):
             one_row = corpus_embeddings[data_idx]
@@ -43,7 +43,7 @@ def closest_points_to_cluster_centroid(cluster_assignment, corpus, centers, corp
         # distances=pairwise_distances_argmin(center_vec, one_cluster_tf_matrix, metric='cosine')
         # print("distances shape is ", distances.shape)
         # print(distances)
-        closest_points_idx = distances.argsort()[::-1][:number_closest_points-1]  #TODO for cosine, the order needs to be reversed
+        closest_points_idx = distances.argsort()[0][::-1][:number_closest_points]
         # print('closest_points_idx', closest_points_idx)
         closest_idx_in_one_cluster_tf_matrix = closest_points_idx
         # print('closest_idx_in_one_cluster_tf_matrix', closest_idx_in_one_cluster_tf_matrix)

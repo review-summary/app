@@ -43,32 +43,32 @@ def form():
         close_reviews_to_centroid_1 = closest_points_to_cluster_centroid(cluster_assignment_1_star, corpus_1, centers_1, corpus_embeddings_1, m)
         close_reviews_to_centroid_5 = closest_points_to_cluster_centroid(cluster_assignment_5_star, corpus_5, centers_5, corpus_embeddings_5, m)
 
-        def display(num_clusters, cluster_assignment, corpus_embeddings, cluster_centers, corpus, final_display):
-            for k in range(num_clusters):
-                review_indices_cluster_k = np.where(cluster_assignment == k)[0]
-                cluster_embeddings = [corpus_embeddings[i] for i in review_indices_cluster_k]
-                # Find embeddings for each cluster
-                centroid = cluster_centers[k]
-                distance_from_centroids = scipy.spatial.distance.cdist(cluster_centers, cluster_embeddings, "cosine")
-                closest_sentence_indices = distance_from_centroids[k].argsort()[-m:][::-1]
-                display_sentences = [corpus[j] for j in closest_sentence_indices]
-                final_display[k] = display_sentences
+        # def display(num_clusters, cluster_assignment, corpus_embeddings, cluster_centers, corpus, final_display):
+        #     for k in range(num_clusters):
+        #         review_indices_cluster_k = np.where(cluster_assignment == k)[0]
+        #         cluster_embeddings = [corpus_embeddings[i] for i in review_indices_cluster_k]
+        #         # Find embeddings for each cluster
+        #         centroid = cluster_centers[k]
+        #         distance_from_centroids = scipy.spatial.distance.cdist(cluster_centers, cluster_embeddings, "cosine")
+        #         closest_sentence_indices = distance_from_centroids[k].argsort()[-m:][::-1]
+        #         display_sentences = [corpus[j] for j in closest_sentence_indices]
+        #         final_display[k] = display_sentences
 
-            return final_display
+        #     return final_display
         
-        final_display_1 = display(num_clusters, cluster_assignment_1_star, corpus_embeddings_1, centers_1, corpus_1, final_display_1)
-        final_display_5 = display(num_clusters, cluster_assignment_5_star, corpus_embeddings_5, centers_5, corpus_5, final_display_5)
-        log.info("Predicted: %s", final_display_1)
-        # First index is the cluster, second index is the review index for that cluster (0 is closest to cluster centroid)
-        # Play around with below to make them work with final UI design!
+        # final_display_1 = display(num_clusters, cluster_assignment_1_star, corpus_embeddings_1, centers_1, corpus_1, final_display_1)
+        # final_display_5 = display(num_clusters, cluster_assignment_5_star, corpus_embeddings_5, centers_5, corpus_5, final_display_5)
+        # log.info("Predicted: %s", final_display_1)
+        # # First index is the cluster, second index is the review index for that cluster (0 is closest to cluster centroid)
+        # # Play around with below to make them work with final UI design!
         
-        num_clusters = len(final_display_5)
+        # num_clusters = len(final_display_5)
         
-        for i in range(num_clusters):
-            for j in range(len(final_display_5[i])):
-                pos.append(final_display_5[i][j])
-            for k in range(len(final_display_1[i])):
-                neg.append(final_display_1[i][k])
+        # for i in range(num_clusters):
+        #     for j in range(len(final_display_5[i])):
+        #         pos.append(final_display_5[i][j])
+        #     for k in range(len(final_display_1[i])):
+        #         neg.append(final_display_1[i][k])
     else:
         close_reviews_to_centroid_5 = close_reviews_to_centroid_1 = {}
     return render_template('form.html', products=products, selected=selected, positive=close_reviews_to_centroid_5.values(), negative=close_reviews_to_centroid_1.values())
